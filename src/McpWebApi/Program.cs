@@ -63,6 +63,11 @@ mcpBuilder.WithRoleBasedToolFilter(
     typeof(McpWebApi.Modules.InpNurse.Tools.NurseTools).Assembly,
     typeof(McpWebApi.Modules.InpDoctor.Tools.CrisisValueTools).Assembly);
 
+// ============================================================
+// 6. 注册 Tool Description 热重载（从外部 JSON 配置覆盖描述）
+// ============================================================
+mcpBuilder.WithToolDescriptionOverride("tool-descriptions.json");
+
 var app = builder.Build();
 
 // ============================================================

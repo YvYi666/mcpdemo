@@ -1,0 +1,26 @@
+{
+  "query_in_hospital_patient_list": {
+    "description": "查询住院患者列表，返回当前病区的在院患者信息",
+    "parameters": {
+      "keyword": "搜索关键词，可按患者姓名、床号等搜索（可选）",
+      "deptId": "科室ID（可选）",
+      "status": "患者状态：in=在院，out=出院（默认 in）",
+      "scope": "查询范围：ward=病区，dept=科室（默认 ward）",
+      "emptyBed": "是否包含空床位（默认 true）"
+    }
+  },
+  "get_crisis_value_list": {
+    "description": "查询危急值预警列表，检索指定时间范围内出现危急值的报告",
+    "parameters": {
+      "startTime": "开始时间，格式：yyyy-MM-dd HH:mm:ss，例如 2026-03-17 00:00:00",
+      "endTime": "结束时间，格式：yyyy-MM-dd HH:mm:ss，例如 2026-03-20 23:59:59",
+      "status": "状态筛选：0=未处理，1=已处理，2=全部（默认）"
+    }
+  },
+  "get_crisis_value_detail": {
+    "description": "查询危急值详情，根据危急值记录ID获取详细信息资料",
+    "parameters": {
+      "id": "危急值记录ID"
+    }
+  }
+}

@@ -2,7 +2,6 @@ using McpWebApi.Modules.InpNurse.Services;
 using McpWebApi.Modules.Shared;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace McpWebApi.Modules.InpNurse.Tools;
@@ -20,13 +19,13 @@ public class NurseTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("查询住院患者列表，返回当前病区的在院患者信息")]
+    [McpServerTool]
     public async Task<string> QueryInHospitalPatientList(
-        [Description("搜索关键词，可按患者姓名、床号等搜索（可选）")] string? keyword = null,
-        [Description("科室ID（可选）")] string? deptId = null,
-        [Description("患者状态：in=在院，out=出院（默认 in）")] string status = "in",
-        [Description("查询范围：ward=病区，dept=科室（默认 ward）")] string scope = "ward",
-        [Description("是否包含空床位（默认 true）")] bool emptyBed = true)
+        string? keyword = null,
+        string? deptId = null,
+        string status = "in",
+        string scope = "ward",
+        bool emptyBed = true)
     {
         _logger.LogInformation("[MCP调用] QueryInHospitalPatientList 入参: keyword={Keyword}, deptId={DeptId}, status={Status}, scope={Scope}, emptyBed={EmptyBed}",
             keyword, deptId, status, scope, emptyBed);

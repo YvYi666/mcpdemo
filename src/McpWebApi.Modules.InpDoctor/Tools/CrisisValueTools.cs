@@ -2,7 +2,6 @@ using McpWebApi.Modules.InpDoctor.Services;
 using McpWebApi.Modules.Shared;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using System.ComponentModel;
 using System.Diagnostics;
 
 namespace McpWebApi.Modules.InpDoctor.Tools;
@@ -20,11 +19,11 @@ public class CrisisValueTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("查询危急值预警列表，检索指定时间范围内出现危急值的报告")]
+    [McpServerTool]
     public async Task<string> GetCrisisValueList(
-        [Description("开始时间，格式：yyyy-MM-dd HH:mm:ss，例如 2026-03-17 00:00:00")] string startTime,
-        [Description("结束时间，格式：yyyy-MM-dd HH:mm:ss，例如 2026-03-20 23:59:59")] string endTime,
-        [Description("状态筛选：0=未处理，1=已处理，2=全部（默认）")] string status = "2")
+        string startTime,
+        string endTime,
+        string status = "2")
     {
         _logger.LogInformation("[MCP调用] GetCrisisValueList 入参: startTime={StartTime}, endTime={EndTime}, status={Status}",
             startTime, endTime, status);
@@ -46,9 +45,9 @@ public class CrisisValueTools
         }
     }
 
-    [McpServerTool, Description("查询危急值详情，根据危急值记录ID获取详细信息")]
+    [McpServerTool]
     public async Task<string> GetCrisisValueDetail(
-        [Description("危急值记录ID")] string id)
+        string id)
     {
         _logger.LogInformation("[MCP调用] GetCrisisValueDetail 入参: id={Id}", id);
 
