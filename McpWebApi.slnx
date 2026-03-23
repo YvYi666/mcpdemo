@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/McpWebApi.Modules.InpDoctor/McpWebApi.Modules.InpDoctor.csproj" />
+    <Project Path="src/McpWebApi.Modules.InpNurse/McpWebApi.Modules.InpNurse.csproj" />
+    <Project Path="src/McpWebApi.Modules.Shared/McpWebApi.Modules.Shared.csproj" />
+    <Project Path="src/McpWebApi/McpWebApi.csproj" />
+  </Folder>
+</Solution>

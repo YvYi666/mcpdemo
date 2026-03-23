@@ -1,0 +1,11 @@
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/bin/Debug/net10.0/McpWebApi.Modules.Shared.deps.json
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/bin/Debug/net10.0/McpWebApi.Modules.Shared.dll
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/bin/Debug/net10.0/McpWebApi.Modules.Shared.pdb
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.AssemblyInfoInputs.cache
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.AssemblyInfo.cs
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.csproj.CoreCompileInputs.cache
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.dll
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/refint/McpWebApi.Modules.Shared.dll
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/McpWebApi.Modules.Shared.pdb
+/Users/mac/Downloads/demo_mcp/src/McpWebApi.Modules.Shared/obj/Debug/net10.0/ref/McpWebApi.Modules.Shared.dll
