@@ -19,6 +19,11 @@ public class TokenProvider
     private string? _token;
     private DateTimeOffset _expiresAt = DateTimeOffset.MinValue;
 
+    /// <summary>
+    /// 当前登录用户拥有的角色代码集合，从登录响应的 data.prop 字段提取。
+    /// </summary>
+    public HashSet<string> UserRoles { get; private set; } = new(StringComparer.OrdinalIgnoreCase);
+
     public TokenProvider(HttpClient httpClient, IOptions<ExternalApiOptions> options, ILogger<TokenProvider> logger)
     {
         _httpClient = httpClient;
@@ -76,7 +81,39 @@ public class TokenProvider
         });
         request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
-        var (token, expiresAt) = await SendAndParseTokenAsync(request, cancellationToken);
+        var response = await _httpClient.SendAsync(request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        var code = root.GetProperty("code").GetInt32();
+        if (code != 200)
+        {
+            var msg = root.GetProperty("msg").GetString();
+            throw new InvalidOperationException($"请求失败: {msg}");
+        }
+
+        var data = root.GetProperty("data");
+        var token = data.GetProperty("token").GetString()
+            ?? throw new InvalidOperationException("响应中没有 token");
+
+        var expireTimestamp = data.GetProperty("token_effective_period").GetInt64();
+        var expiresAt = DateTimeOffset.FromUnixTimeSeconds(expireTimestamp);
+
+        // 提取用户角色（prop 字段，逗号分隔的角色代码）
+        if (data.TryGetProperty("prop", out var propElement))
+        {
+            var prop = propElement.GetString();
+            if (!string.IsNullOrEmpty(prop))
+            {
+                UserRoles = new HashSet<string>(
+                    prop.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
+                    StringComparer.OrdinalIgnoreCase);
+                _logger.LogInformation("[TokenProvider] 用户角色: {Roles}", prop);
+            }
+        }
 
         _logger.LogInformation("[TokenProvider] 登录成功，有效期至 {ExpiresAt}", expiresAt.ToLocalTime());
         return (token, expiresAt);

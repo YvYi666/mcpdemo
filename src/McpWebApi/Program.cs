@@ -55,6 +55,14 @@ var mcpBuilder = builder.Services
 builder.AddInpNurseModule(mcpBuilder);    // 住院护士站
 builder.AddInpDoctorModule(mcpBuilder);   // 住院医生站
 
+// ============================================================
+// 5. 注册基于角色的 MCP Tool 过滤器
+// ============================================================
+mcpBuilder.WithRoleBasedToolFilter(
+    builder.Services,
+    typeof(McpWebApi.Modules.InpNurse.Tools.NurseTools).Assembly,
+    typeof(McpWebApi.Modules.InpDoctor.Tools.CrisisValueTools).Assembly);
+
 var app = builder.Build();
 
 // ============================================================

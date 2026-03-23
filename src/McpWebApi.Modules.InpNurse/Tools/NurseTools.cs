@@ -1,4 +1,5 @@
 using McpWebApi.Modules.InpNurse.Services;
+using McpWebApi.Modules.Shared;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 namespace McpWebApi.Modules.InpNurse.Tools;
 
 [McpServerToolType]
+[AllowedRoles("B")]
 public class NurseTools
 {
     private readonly INurseService _nurseService;

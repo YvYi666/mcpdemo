@@ -1,4 +1,5 @@
 using McpWebApi.Modules.InpDoctor.Services;
+using McpWebApi.Modules.Shared;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 namespace McpWebApi.Modules.InpDoctor.Tools;
 
 [McpServerToolType]
+[AllowedRoles("A")]
 public class CrisisValueTools
 {
     private readonly ICrisisValueService _crisisValueService;
