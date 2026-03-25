@@ -1,0 +1,16 @@
+{
+  "services": [
+    {
+      "id": "svc-318029f9",
+      "name": "HIS MCP Server",
+      "url": "http://localhost:10011/mcp",
+      "transport": "streamable-http",
+      "authType": "none",
+      "description": "住院护士站/医生站 MCP 服务",
+      "status": "connected",
+      "lastConnectedAt": "2026-03-25T08:40:18.731Z",
+      "createdAt": "2026-03-25T08:43:22Z",
+      "updatedAt": "2026-03-25T08:43:22Z"
+    }
+  ]
+}
