@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <Content Update="tool-descriptions.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="agents.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="mcp-services.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
