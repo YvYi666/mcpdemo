@@ -35,7 +35,8 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .WithExposedHeaders("Mcp-Session-Id");
     });
 });
 builder.Services.AddControllers();
@@ -56,12 +57,14 @@ builder.AddInpNurseModule(mcpBuilder);    // 住院护士站
 builder.AddInpDoctorModule(mcpBuilder);   // 住院医生站
 
 // ============================================================
-// 5. 注册基于角色的 MCP Tool 过滤器
+// 5. 注册 ToolRoleMapProvider（共享角色-工具映射单例）+ 角色过滤器
 // ============================================================
-mcpBuilder.WithRoleBasedToolFilter(
-    builder.Services,
+var toolRoleMapProvider = new ToolRoleMapProvider(
     typeof(McpWebApi.Modules.InpNurse.Tools.NurseTools).Assembly,
     typeof(McpWebApi.Modules.InpDoctor.Tools.CrisisValueTools).Assembly);
+builder.Services.AddSingleton(toolRoleMapProvider);
+
+mcpBuilder.WithRoleBasedToolFilter(builder.Services);
 
 // ============================================================
 // 6. 注册 Tool Description 热重载（从外部 JSON 配置覆盖描述）

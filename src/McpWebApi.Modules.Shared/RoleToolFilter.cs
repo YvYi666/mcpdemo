@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Protocol;
@@ -9,74 +7,21 @@ namespace McpWebApi.Modules.Shared;
 
 /// <summary>
 /// 基于角色的 MCP Tool 过滤器，根据 TokenProvider.UserRoles 过滤工具列表和调用权限。
+/// 依赖 ToolRoleMapProvider 获取 tool → roles 映射。
 /// </summary>
 public static class RoleToolFilter
 {
     /// <summary>
-    /// 将 PascalCase 方法名转为 snake_case（与 MCP SDK 的默认命名策略一致）。
-    /// 例如 GetCrisisValueList → get_crisis_value_list
-    /// </summary>
-    private static string ToSnakeCase(string name)
-    {
-        var sb = new StringBuilder();
-        for (var i = 0; i < name.Length; i++)
-        {
-            var c = name[i];
-            if (char.IsUpper(c))
-            {
-                if (i > 0)
-                    sb.Append('_');
-                sb.Append(char.ToLowerInvariant(c));
-            }
-            else
-            {
-                sb.Append(c);
-            }
-        }
-        return sb.ToString();
-    }
-
-    /// <summary>
-    /// 注册基于角色的工具过滤器。扫描指定程序集中标记了 [AllowedRoles] 的 Tool 类，
-    /// 建立 tool name → 所需角色的映射，然后通过 SDK 过滤器拦截列表和调用请求。
+    /// 注册基于角色的工具过滤器。使用 ToolRoleMapProvider（需提前注册为单例）
+    /// 通过 SDK 过滤器拦截列表和调用请求。
     /// </summary>
     public static IMcpServerBuilder WithRoleBasedToolFilter(
         this IMcpServerBuilder mcpBuilder,
-        IServiceCollection services,
-        params Assembly[] assemblies)
+        IServiceCollection services)
     {
-        // 扫描程序集，建立 tool name（snake_case）→ 所需角色 映射
-        var toolRoleMap = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var assembly in assemblies)
-        {
-            foreach (var type in assembly.GetTypes())
-            {
-                var rolesAttr = type.GetCustomAttribute<AllowedRolesAttribute>();
-                if (rolesAttr is null)
-                    continue;
-
-                // 查找该类中所有标记了 [McpServerTool] 的方法
-                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
-                {
-                    var toolAttr = method.GetCustomAttribute<McpServerToolAttribute>();
-                    if (toolAttr is null)
-                        continue;
-
-                    // SDK 默认将方法名转为 snake_case 作为 tool name
-                    var toolName = toolAttr.Name ?? ToSnakeCase(method.Name);
-                    toolRoleMap[toolName] = rolesAttr.Roles;
-                }
-            }
-        }
-
-        // 启动时打印扫描结果，便于排查
-        Console.WriteLine($"[RoleToolFilter] 扫描到 {toolRoleMap.Count} 个角色映射:");
-        foreach (var (name, roles) in toolRoleMap)
-            Console.WriteLine($"  工具={name} → 需要角色=[{string.Join(",", roles)}]");
-
         ILogger? _logger = null;
         TokenProvider? _tokenProvider = null;
+        ToolRoleMapProvider? _mapProvider = null;
 
         void EnsureResolved(IServiceProvider? contextServices)
         {
@@ -88,22 +33,19 @@ public static class RoleToolFilter
                 return;
 
             _tokenProvider = sp.GetService<TokenProvider>();
+            _mapProvider = sp.GetService<ToolRoleMapProvider>();
             _logger = sp.GetService<ILoggerFactory>()?.CreateLogger("McpWebApi.Modules.Shared.RoleToolFilter");
 
             if (_tokenProvider is null)
                 _logger?.LogWarning("[RoleToolFilter] 无法从 DI 容器解析 TokenProvider，角色过滤将不生效");
+            if (_mapProvider is null)
+                _logger?.LogWarning("[RoleToolFilter] 无法从 DI 容器解析 ToolRoleMapProvider");
         }
 
-        /// <summary>
-        /// 确保登录已完成、UserRoles 已提取。
-        /// 首次调用会触发 TokenProvider.GetTokenAsync() 完成登录。
-        /// </summary>
         async Task EnsureLoginAsync(CancellationToken cancellationToken)
         {
             if (_tokenProvider is null)
                 return;
-
-            // GetTokenAsync 内部有缓存，不会重复登录
             await _tokenProvider.GetTokenAsync(cancellationToken);
         }
 
@@ -116,14 +58,13 @@ public static class RoleToolFilter
 
                 EnsureResolved(context.Services);
 
-                if (_tokenProvider is null)
+                if (_tokenProvider is null || _mapProvider is null)
                 {
-                    _logger?.LogWarning("[RoleToolFilter] TokenProvider 未就绪，返回空工具列表");
+                    _logger?.LogWarning("[RoleToolFilter] TokenProvider 或 ToolRoleMapProvider 未就绪，返回空工具列表");
                     result.Tools = [];
                     return result;
                 }
 
-                // 确保登录已完成，UserRoles 已填充
                 await EnsureLoginAsync(cancellationToken);
 
                 var userRoles = _tokenProvider.UserRoles;
@@ -134,9 +75,9 @@ public static class RoleToolFilter
                     return result;
                 }
 
+                var toolRoleMap = _mapProvider.ToolRoleMap;
                 var before = result.Tools.Count;
-                _logger?.LogInformation("[RoleToolFilter] SDK 工具列表: {Tools}",
-                    string.Join(", ", result.Tools.Select(t => t.Name)));
+
                 result.Tools = result.Tools
                     .Where(tool =>
                     {
@@ -164,9 +105,9 @@ public static class RoleToolFilter
                 await EnsureLoginAsync(cancellationToken);
 
                 var userRoles = _tokenProvider?.UserRoles;
+                var toolRoleMap = _mapProvider?.ToolRoleMap;
 
-                // 无角色时拒绝所有需要角色的工具调用
-                if (context.Params is not null)
+                if (context.Params is not null && toolRoleMap is not null)
                 {
                     var toolName = context.Params.Name;
                     if (toolRoleMap.TryGetValue(toolName, out var requiredRoles))
